@@ -92,3 +92,14 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+
+#
+# django-daserver
+#
+
+# Database
+db.sqlite3
+
+# dasdremote
+dasdremote/static/
