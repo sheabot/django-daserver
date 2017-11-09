@@ -1,11 +1,12 @@
 from datetime import datetime
+import os
 import requests
 import threading
 
 from dasdaemon.exceptions import DaSDRequestError
 from dasdaemon.logger import log
 
-REQUESTS_MANAGER_DEBUG = False
+REQUESTS_MANAGER_DEBUG = bool(os.getenv('REQUESTS_MANAGER_DEBUG', False))
 
 
 class RequestNewTokenError(Exception):
