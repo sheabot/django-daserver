@@ -100,10 +100,7 @@ class PackageDownloader(DaSDWorker):
         try:
             self._download_package_file(package_file)
         except DaSDError as exc:
-            log.error(
-                'Failed to download package file: %s: %s',
-                package_file.filename, exc.message
-            )
+            log.exception(exc)
             package_file.set_error(exc)
 
     def _download_package_file(self, package_file):
@@ -129,7 +126,6 @@ class PackageDownloader(DaSDWorker):
             )
         except Exception as exc:
             message = 'Failed to download package file: %s: %s' % (package_file.filename, str(exc))
-            log.exception(message)
             raise PackageDownloadError(message)
         else:
             # Count successful downloads and move package file
