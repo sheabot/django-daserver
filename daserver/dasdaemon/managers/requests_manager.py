@@ -55,7 +55,7 @@ class RequestsManager(object):
         if req.status_code == requests.codes.partial:
             return req
         else:
-            raise DaSDRequestError('Request returned %d' % req.status_code)
+            raise DaSDRequestError('Request returned %d: %s, Range: %s' % (req.status_code, url, headers['Range']))
 
     def _send_request(self, method, *args, **kwargs):
         # Refresh token if necessary
