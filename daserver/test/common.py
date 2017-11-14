@@ -6,11 +6,15 @@ import responses
 from dasdaemon.config import DaSDConfig
 
 
+_CONFIG_FILE_NAME = os.getenv('DASD_CONFIG', 'dasd.cfg')
+
+
 class ConfigFileNotFoundError(Exception):
     pass
 
 
-def load_test_config2(config_file_name='dasd.cfg', section=None):
+# TODO: Figure out what the plan was for this
+def load_test_config2(config_file_name=_CONFIG_FILE_NAME, section=None):
     # Get path to config file
     working_dir = os.path.dirname(os.path.abspath(__file__))
     config_file_path = os.path.join(working_dir, 'config', config_file_name)
@@ -26,7 +30,7 @@ def load_test_config2(config_file_name='dasd.cfg', section=None):
     else:
         return dasd_config.get_section(section)
 
-def load_test_config(config_file_name='dasd.cfg'):
+def load_test_config(config_file_name=_CONFIG_FILE_NAME):
     # Get path to config file
     working_dir = os.path.dirname(os.path.abspath(__file__))
     config_file_path = os.path.join(working_dir, 'config', config_file_name)
