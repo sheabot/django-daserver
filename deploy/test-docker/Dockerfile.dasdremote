@@ -1,0 +1,10 @@
+FROM python:2.7
+
+ENV PYTHONUNBUFFERED 1
+
+RUN mkdir /config
+COPY ./config/dasdremote /config/
+RUN pip install -r /config/requirements.txt
+
+RUN mkdir /dasdremote
+WORKDIR /dasdremote

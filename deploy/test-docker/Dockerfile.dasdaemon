@@ -1,0 +1,16 @@
+FROM python:2.7
+
+ENV PYTHONUNBUFFERED 1
+
+RUN mkdir /config
+COPY ./config/dasdaemon /config/
+RUN pip install -r /config/requirements.txt
+
+# Add users and groups
+RUN groupadd -g 3001 dasd
+RUN groupadd -g 3002 dasdmaster
+RUN groupadd -g 3003 dasdnew
+RUN useradd -M -u 3001 -s '' -g dasd -G dasdmaster,dasdnew dasd
+
+RUN mkdir /daserver
+WORKDIR /daserver

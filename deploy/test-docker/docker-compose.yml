@@ -1,0 +1,30 @@
+version: '3'
+services:
+  daserver-nginx:
+    image: nginx:latest
+    ports:
+      - "8000:80"
+    volumes:
+      - ./config/nginx:/etc/nginx/conf.d
+      - ./.files:/files
+    depends_on:
+      - dasdremote
+  dasdremote:
+    build:
+      context: .
+      dockerfile: Dockerfile.dasdremote
+    environment:
+      - DJANGO_SETTINGS_MODULE=dasdremote.settings.docker
+    command: bash /config/django-db-init.sh
+    volumes:
+      - ../../dasdremote:/dasdremote
+      - ./.files:/files
+  dasdaemon:
+    build:
+      context: .
+      dockerfile: Dockerfile.dasdaemon
+    volumes:
+      - ../../daserver:/daserver
+      - ./.files:/files
+    depends_on:
+      - dasdremote
