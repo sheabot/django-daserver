@@ -15,7 +15,6 @@ class Command(BaseCommand):
         parser.add_argument(
             '--cfg', action='store', dest='cfg_file',
             type=file,
-            default='daserver/dasdaemon/conf/dasd-test.conf',
             help='Full path to config file'
         )
 
