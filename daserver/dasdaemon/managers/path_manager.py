@@ -33,7 +33,7 @@ class PathManager(object):
             dirpath,
             uid=self.package_files_dir.uid,
             gid=self.package_files_dir.gid,
-            mode=self.package_files_dir.mode
+            mode=self.package_files_dir.dmode
         )
         return dirpath
 
@@ -67,7 +67,7 @@ class PathManager(object):
             dirpath,
             uid=self.unsorted_package_dir.uid,
             gid=self.unsorted_package_dir.gid,
-            mode=self.unsorted_package_dir.mode
+            mode=self.unsorted_package_dir.dmode
         )
         return dirpath
 
@@ -86,7 +86,8 @@ class PathConfig(object):
         self.path = split[0]
         self.owner = split[1]
         self.group = split[2]
-        self.mode = int(split[3], 8)
+        self.dmode = int(split[3], 8)
+        self.fmode = int(split[4], 8)
 
         # Get user and group IDs from names
         self.uid = utils.fs.get_uid_from_user(self.owner)

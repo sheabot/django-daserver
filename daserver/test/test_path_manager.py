@@ -38,12 +38,13 @@ class PathManagerTests(TestCase):
 
     def test_PathConfig(self):
         # Format: path,owner,group,mode
-        path_config_str = 'path,shea,staff,0775'
+        path_config_str = 'path,dasd,dasdmaster,0775,0664'
         path_config = PathConfig(path_config_str)
         self.assertEqual('path', path_config.path)
-        self.assertEqual('shea', path_config.owner)
-        self.assertEqual('staff', path_config.group)
-        self.assertEqual(0775, path_config.mode)
+        self.assertEqual('dasd', path_config.owner)
+        self.assertEqual('dasdmaster', path_config.group)
+        self.assertEqual(0775, path_config.dmode)
+        self.assertEqual(0664, path_config.fmode)
 
     def test_get_package_files_dir(self):
         """/packages/files/dir/TorrentName/"""
@@ -61,7 +62,7 @@ class PathManagerTests(TestCase):
         owner, group = utils.fs.get_ownership_names(dirpath)
         self.assertEqual(self.pm.package_files_dir.owner, owner)
         self.assertEqual(self.pm.package_files_dir.group, group)
-        self.assertEqual(self.pm.package_files_dir.mode, utils.fs.get_mode(dirpath))
+        self.assertEqual(self.pm.package_files_dir.dmode, utils.fs.get_mode(dirpath))
 
     def test_create_package_files_dir_no_perms(self):
         """/packages/files/dir/TorrentName/"""
@@ -98,7 +99,7 @@ class PathManagerTests(TestCase):
         owner, group = utils.fs.get_ownership_names(dirpath)
         self.assertEqual(self.pm.unsorted_package_dir.owner, owner)
         self.assertEqual(self.pm.unsorted_package_dir.group, group)
-        self.assertEqual(self.pm.unsorted_package_dir.mode, utils.fs.get_mode(dirpath))
+        self.assertEqual(self.pm.unsorted_package_dir.dmode, utils.fs.get_mode(dirpath))
 
     def test_create_package_output_dir_no_perms(self):
         # Verify directory not created
