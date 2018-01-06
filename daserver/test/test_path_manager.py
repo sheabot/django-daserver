@@ -37,7 +37,7 @@ class PathManagerTests(TestCase):
         os.chmod(dirpath, 0555)
 
     def test_PathConfig(self):
-        # Format: path,owner,group,mode
+        # Format: path,owner,group,dmode,fmode
         path_config_str = 'path,dasd,dasdmaster,0775,0664'
         path_config = PathConfig(path_config_str)
         self.assertEqual('path', path_config.path)
@@ -110,6 +110,39 @@ class PathManagerTests(TestCase):
             self.pm.create_package_output_dir(self.torrent)
         self.assertFalse(os.path.isdir(dirpath))
 
+    def test_chownmod_package_output_dir(self):
+        # Create package output directory
+        dirpath = os.path.join(self.pm.unsorted_package_dir.path, 'TorrentName')
+        self.pm.create_package_output_dir(self.torrent)
+
+        """Assemble a directory structure
+        /unsorted/package/dir/TorrentName/file1
+        /unsorted/package/dir/TorrentName/dir1/
+        /unsorted/package/dir/TorrentName/dir1/file2
+        """
+        file1 = os.path.join(dirpath, 'file1')
+        dir1 = os.path.join(dirpath, 'dir1')
+        file2 = os.path.join(dir1, 'file2')
+
+        # Create directory and files inside package output directory
+        utils.fs.mkdir_p(dir1)
+        utils.fs.write_random_file(file1, 1234)
+        utils.fs.write_random_file(file2, 1234)
+
+        # Verify permissions are not correct
+        for path in [file1, dir1, file2]:
+            owner, group = utils.fs.get_ownership_names(path)
+            self.assertNotEqual(self.pm.unsorted_package_dir.owner, owner)
+            self.assertNotEqual(self.pm.unsorted_package_dir.group, group)
+
+        # Change permissions
+        self.pm.chownmod_package_output_dir(self.torrent)
+
+        # Verify permissions are correct
+        for path in [file1, dir1, file2]:
+            owner, group = utils.fs.get_ownership_names(path)
+            self.assertEqual(self.pm.unsorted_package_dir.owner, owner)
+            self.assertEqual(self.pm.unsorted_package_dir.group, group)
 
 
 

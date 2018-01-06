@@ -71,6 +71,23 @@ class PathManager(object):
         )
         return dirpath
 
+    def chownmod_package_output_dir(self, torrent):
+        """Recursively change ownership and mode of directory contents
+        for package output
+        /unsorted/package/dir/<torrent>/
+        """
+        dirpath = self.get_package_output_dir(torrent)
+        try:
+            utils.fs.chownmod(
+                dirpath,
+                uid=self.unsorted_package_dir.uid,
+                gid=self.unsorted_package_dir.gid,
+                dmode=self.unsorted_package_dir.dmode,
+                fmode=self.unsorted_package_dir.fmode
+            )
+        except OSError as exc:
+            raise PathError(str(exc))
+
     def _mkdir_chownmod(self, dirpath, uid=None, gid=None, mode=None):
         try:
             utils.fs.mkdir_chownmod(dirpath, uid=uid, gid=gid, mode=mode)
