@@ -31,6 +31,33 @@ def mkdir_chownmod(dirpath, owner=None, group=None, uid=None, gid=None, mode=Non
     if mode is not None:
         os.chmod(dirpath, mode)
 
+def chownmod(dirpath, owner=None, group=None, uid=None, gid=None, dmode=None, fmode=None):
+    """Recursively set ownership and permissions for a directory contents"""
+    if owner is not None:
+        uid = get_uid_from_user(owner)
+    if group is not None:
+        gid = get_gid_from_group(group)
+
+    for root, dirs, files in os.walk(dirpath):
+        # Directories
+        for dname in dirs:
+            path = os.path.join(root, dname)
+            if uid is not None:
+                os.chown(path, uid, -1)
+            if gid is not None:
+                os.chown(path, -1, gid)
+            if dmode is not None:
+                os.chmod(path, dmode)
+        # Files
+        for fname in files:
+            path = os.path.join(root, fname)
+            if uid is not None:
+                os.chown(path, uid, -1)
+            if gid is not None:
+                os.chown(path, -1, gid)
+            if fmode is not None:
+                os.chmod(path, fmode)
+
 def rm_rf(path):
     """Emulate `rm -rf` shell command"""
     if os.path.isdir(path):
