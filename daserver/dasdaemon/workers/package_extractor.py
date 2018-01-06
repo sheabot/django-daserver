@@ -77,6 +77,7 @@ class PackageExtractor(DaSDWorker):
         package_dir = self.path_manager.create_package_output_dir(torrent)
         with tarfile.open(self.path_manager.get_package_archive_path(torrent)) as package_archive:
             package_archive.extractall(path=package_dir)
+        self.path_manager.chownmod_package_output_dir(torrent)
 
     def _extract_package(self, torrent):
         """Get package file set, create package archive, and extract package

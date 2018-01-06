@@ -251,6 +251,11 @@ class PackageExtractorIntegrationTests(TestCase):
         self.assertTrue(os.path.exists(original_file))
         self.assertEqual(md5_file, utils.hash.md5_file(original_file))
 
+        # Verify permissions are correct
+        owner, group = utils.fs.get_ownership_names(original_file)
+        self.assertEqual(self.pm.unsorted_package_dir.owner, owner)
+        self.assertEqual(self.pm.unsorted_package_dir.group, group)
+
         # Verify package archive and files were cleaned up
         self.assertFalse(os.path.exists(package_files_dir))
 
