@@ -103,3 +103,6 @@ db.sqlite3
 
 # dasdremote
 dasdremote/static/
+
+# deploy/test
+.files/
