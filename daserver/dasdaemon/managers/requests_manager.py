@@ -22,7 +22,7 @@ class RequestsManager(object):
         self.username = self.config['username']
         self.password = self.config['password']
         self.token_expiration_sec = int(self.config['token_expiration_sec'])
-        self.timeout = int(self.config['timeout'])
+        self.timeout = None if self.config['timeout'] is None else int(self.config['timeout'])
 
         # Request token
         self.token = None
@@ -87,7 +87,7 @@ class RequestsManager(object):
         if req is None:
             raise DaSDRequestError('Request is None')
         elif req.status_code != requests.codes.ok:
-            raise DaSDRequestError('Request returned %d', req.status_code)
+            raise DaSDRequestError('Request returned %d' % req.status_code)
         else:
             try:
                 return req.json()
