@@ -76,12 +76,12 @@ class TorrentPackage(object):
                     out_file.write(chunk)
                     sha256.update(chunk)
 
-                # Add split file to list
-                self.split_files.append({
+                # Yield split file
+                yield {
                     'filename': os.path.basename(split_file),
                     'filesize': os.path.getsize(split_file),
                     'sha256': sha256.hexdigest()
-                })
+                }
 
                 # Increment part number for split file name
                 part_num += 1
@@ -89,8 +89,6 @@ class TorrentPackage(object):
                 # Verify number of files does not get out of control
                 if part_num > 10000:
                     raise RuntimeError('Exceeded split file count')
-
-        return self.split_files
 
     def remove_archive(self):
         try:
@@ -104,20 +102,6 @@ class TorrentPackage(object):
     def create_package(self):
         self.set_permissions()
         self.archive_source()
-        self.split_archive()
-        self.remove_archive()
-
-    def create_package2(self):
-        """
-        TODO: Calculate split size based on size of archive
-              (minimum filesize 10 MB, maximum file count 1000)
-
-        if total_bytes / split_bytes > max_split_files:
-            split_bytes = total_bytes / (max_split_file + 1)
-        """
-        self.set_permissions()
-        self.archive_source()
-        # TODO: Yield package files instead of creating giant list in memory
         for package_file in self.split_archive():
             yield package_file
         self.remove_archive()

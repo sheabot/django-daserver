@@ -24,16 +24,14 @@ class CompletedTorrentPackager(DaSDRemoteWorker):
             return
 
         try:
-            # Package torrent
+            # Package torrent and save package files
             torrent_path = os.path.join(self._completed_torrents_dir, torrent.name)
             tp = TorrentPackage(torrent_path, self._packaged_torrents_dir, self._split_bytes)
-            tp.create_package()
-
-            # Save package files
-            package_files = tp.get_split_files()
-            for package_file in package_files:
+            package_files_count = 0
+            for package_file in tp.create_package():
                 PackageFile.objects.create(torrent=torrent, **package_file)
-            torrent.package_files_count = len(package_files)
+                package_files_count += 1
+            torrent.package_files_count = package_files_count
             torrent.save()
             self.log.info('Packaged torrent: %s (%d files)', torrent.name, torrent.package_files_count)
         except:
