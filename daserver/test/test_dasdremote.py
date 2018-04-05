@@ -75,7 +75,8 @@ class DaSDRemoteDownloadTests(TestCase):
         # Write to local file
         self._write_request_to_file(r, self.download_path)
 
-        # Verify md5 of local file
+        # Verify size and md5 of local file
+        self.assertEqual(self.test_filesize, os.path.getsize(self.download_path))
         md5 = self._compute_md5(self.download_path)
         self.assertEqual(self.test_filehash, md5)
 
@@ -102,7 +103,7 @@ class DaSDRemoteDownloadTests(TestCase):
         # Append to local file
         self._write_request_to_file(r, self.download_path, mode='ab')
 
-        # Verify md5 of local file
+        # Verify size and md5 of local file
+        self.assertEqual(self.test_filesize, os.path.getsize(self.download_path))
         md5 = self._compute_md5(self.download_path)
         self.assertEqual(self.test_filehash, md5)
-

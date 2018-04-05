@@ -1,5 +1,4 @@
 import errno
-import hashlib
 import os
 import shutil
 
@@ -28,20 +27,10 @@ def rm_dir_contents(dirpath):
         for d in dirs:
             shutil.rmtree(os.path.join(root, d))
 
-def write_random_file(path, size_bytes, block_size=1024):
+def write_random_file(path, size_bytes, block_size=16*1024):
     with open(path, 'wb') as f:
         while size_bytes > 0:
             if size_bytes < block_size:
                 block_size = size_bytes
             f.write(os.urandom(block_size))
             size_bytes -= block_size
-
-def compute_md5(path):
-    md5 = hashlib.md5()
-    with open(path, 'rb') as f:
-        while True:
-            chunk = f.read(1024)
-            if not chunk:
-                break
-            md5.update(chunk)
-    return md5.hexdigest()

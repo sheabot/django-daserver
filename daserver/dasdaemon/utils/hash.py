@@ -18,3 +18,13 @@ def md5_bytes(bytestring):
     md5 = hashlib.md5()
     md5.update(bytestring)
     return md5.hexdigest()
+
+def sha256_file(filepath, block_size=4096):
+    sha256 = hashlib.sha256()
+    with open(filepath, 'rb') as in_file:
+        while True:
+            chunk = in_file.read(block_size)
+            if not chunk:
+                break
+            sha256.update(chunk)
+    return sha256.hexdigest()

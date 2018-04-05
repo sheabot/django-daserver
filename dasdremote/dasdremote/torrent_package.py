@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 import shutil
@@ -34,15 +35,15 @@ class TorrentPackage(object):
     def set_permissions(self):
         # Set permissions on source path
         if os.path.isdir(self.source_path):
-            os.chmod(self.source_path, 0775)
+            os.chmod(self.source_path, 0o775)
         else:
-            os.chmod(self.source_path, 0664)
+            os.chmod(self.source_path, 0o664)
 
         for root, dirs, files in os.walk(self.source_path):
             for d in dirs:
-                os.chmod(os.path.join(root, d), 0775)
+                os.chmod(os.path.join(root, d), 0o775)
             for f in files:
-                os.chmod(os.path.join(root, f), 0664)
+                os.chmod(os.path.join(root, f), 0o664)
 
     def archive_source(self):
         # Create archive file
@@ -70,14 +71,24 @@ class TorrentPackage(object):
                 split_file = "%s.%04d" % (self.archive_path, part_num)
 
                 # Write chunk to split file
+                sha256 = hashlib.sha256()
                 with open(split_file, "wb") as out_file:
                     out_file.write(chunk)
+                    sha256.update(chunk)
 
                 # Add split file to list
-                self.split_files.append(os.path.basename(split_file))
+                self.split_files.append({
+                    'filename': os.path.basename(split_file),
+                    'filesize': os.path.getsize(split_file),
+                    'sha256': sha256.hexdigest()
+                })
 
                 # Increment part number for split file name
                 part_num += 1
+
+                # Verify number of files does not get out of control
+                if part_num > 10000:
+                    raise RuntimeError('Exceeded split file count')
 
         return self.split_files
 
@@ -94,4 +105,19 @@ class TorrentPackage(object):
         self.set_permissions()
         self.archive_source()
         self.split_archive()
+        self.remove_archive()
+
+    def create_package2(self):
+        """
+        TODO: Calculate split size based on size of archive
+              (minimum filesize 10 MB, maximum file count 1000)
+
+        if total_bytes / split_bytes > max_split_files:
+            split_bytes = total_bytes / (max_split_file + 1)
+        """
+        self.set_permissions()
+        self.archive_source()
+        # TODO: Yield package files instead of creating giant list in memory
+        for package_file in self.split_archive():
+            yield package_file
         self.remove_archive()

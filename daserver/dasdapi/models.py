@@ -54,6 +54,8 @@ class Torrent(models.Model):
 class PackageFile(models.Model):
     filename = models.CharField(max_length=255)
     torrent = models.ForeignKey(Torrent, related_name='package_file_set')
+    filesize = models.IntegerField(default=0)
+    sha256 = models.CharField(max_length=255, blank=True)
     stage = models.CharField(max_length=255)
 
     def set_error(self, error):

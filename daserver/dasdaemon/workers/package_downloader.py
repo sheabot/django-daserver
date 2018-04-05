@@ -10,6 +10,7 @@ from dasdaemon.workers import (
     DaSDOneTimeQueryFunction,
     DaSDPeriodicQueryFunction
 )
+import dasdaemon.utils as utils
 from dasdapi.models import PackageFile, Torrent
 
 
@@ -109,30 +110,42 @@ class PackageDownloader(DaSDWorker):
         torrent = package_file.torrent
         self.path_manager.create_package_files_dir(torrent)
 
-        # Get file stream request
-        req = self.requests_manager.get_file_stream(
-            self._get_request_url(package_file),
-            start=self._get_local_filesize(torrent, package_file)
-        )
-
-        if req is None:
-            raise PackageDownloadError('Request failed: %s', package_file.filename)
-
-        try:
-            # Write file stream request to file
-            self._write_request_to_file(
-                req,
-                self.path_manager.get_package_file_path(torrent, package_file)
+        # Check local filesize
+        filesize = self._get_local_filesize(torrent, package_file)
+        if package_file.filesize != filesize:
+            # Get file stream request
+            req = self.requests_manager.get_file_stream(
+                self._get_request_url(package_file),
+                start=self._get_local_filesize(torrent, package_file)
             )
-        except Exception as exc:
-            message = 'Failed to download package file: %s: %s' % (package_file.filename, str(exc))
-            raise PackageDownloadError(message)
-        else:
-            # Count successful downloads and move package file
-            # to completed stage
-            log.info('Downloaded: %s', package_file.filename)
-            package_file.stage = self.package_file_completed_stage()
-            package_file.save()
+
+            if req is None:
+                raise PackageDownloadError('Request failed: %s', package_file.filename)
+
+            try:
+                # Write file stream request to file
+                self._write_request_to_file(
+                    req,
+                    self.path_manager.get_package_file_path(torrent, package_file)
+                )
+            except Exception as exc:
+                message = 'Failed to download package file: %s: %s' % (package_file.filename, exc)
+                raise PackageDownloadError(message)
+            else:
+                log.info('Downloaded: %s', package_file.filename)
+
+        # Verify package file
+        log.info('Verifying: %s', package_file.filename)
+        if not self._verify_package_file(torrent, package_file):
+            # Remove package file
+            utils.fs.rm_rf(self.path_manager.get_package_file_path(torrent, package_file))
+            raise PackageDownloadError('Failed to verify package file: %s' % package_file.filename)
+
+        # Count successful downloads and move package file
+        # to completed stage
+        log.info('Verified: %s', package_file.filename)
+        package_file.stage = self.package_file_completed_stage()
+        package_file.save()
 
     def _get_request_url(self, package_file):
         return self.download_url + package_file.filename
@@ -150,3 +163,17 @@ class PackageDownloader(DaSDWorker):
             for chunk in req.iter_content(chunk_size=4096):
                 if chunk:
                     out_file.write(chunk)
+
+    def _verify_package_file(self, torrent, package_file):
+        # Get package file properties
+        filesize = self._get_local_filesize(torrent, package_file)
+        sha256 = utils.hash.sha256_file(self.path_manager.get_package_file_path(torrent, package_file))
+
+        # Verify properties
+        if package_file.filesize != filesize:
+            log.error('Package file: %s: %d != %d', package_file.filename, package_file.filesize, filesize)
+            return False
+        if package_file.sha256 != sha256:
+            log.error('Package file: %s: %s != %s', package_file.filename, package_file.sha256, sha256)
+            return False
+        return True

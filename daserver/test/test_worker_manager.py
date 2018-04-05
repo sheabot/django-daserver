@@ -14,12 +14,12 @@ import dasdaemon.workers.base
 from dasdaemon.workers import (
     DaSDOneTimeQueryFunction,
     DaSDPeriodicQueryFunction,
-    CompletedTorrentMonitor,
-    CompletedTorrentPackager,
-    CompletedTorrentPackagerOneTimeQueryFunction,
     PackageDownloader,
     PackageDownloaderOneTimeQueryFunction,
     PackageDownloaderPeriodicQueryFunction,
+    PackagedTorrentLister,
+    PackagedTorrentListerOneTimeQueryFunction,
+    PackagedTorrentMonitor,
     PackageExtractor
 )
 from dasdaemon.workers.error import ErrorHandlerPeriodicQueryFunction
@@ -61,8 +61,8 @@ class WorkerManagerTests(TestCase):
         # Verify query functions
         self.assertItemsEqual(
             query_functions, [
-                CompletedTorrentPackagerOneTimeQueryFunction,
-                PackageDownloaderOneTimeQueryFunction
+                PackageDownloaderOneTimeQueryFunction,
+                PackagedTorrentListerOneTimeQueryFunction
             ]
         )
 
@@ -137,9 +137,9 @@ class WorkerManagerTests(TestCase):
         # Verify worker classes
         self.assertItemsEqual(
             worker_classes, [
-                CompletedTorrentMonitor,
-                CompletedTorrentPackager,
                 PackageDownloader,
+                PackagedTorrentLister,
+                PackagedTorrentMonitor,
                 PackageExtractor
             ]
         )

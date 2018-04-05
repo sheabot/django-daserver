@@ -152,4 +152,4 @@ def get_ownership_names(path):
 
 def get_mode(path):
     """Get file or directory mode (as integer)"""
-    return int(oct(os.stat(path).st_mode & 0777), 8)
+    return int(oct(os.stat(path).st_mode & 0o777), 8)

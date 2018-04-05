@@ -85,6 +85,10 @@ class WorkerManager(object):
 
         # Iterate through all submodules
         for _, name, is_pkg in pkgutil.iter_modules([workers_module_path]):
+            # Skip private modules
+            if name.startswith('_'):
+                continue
+
             # Import submodule
             module = import_module('dasdaemon.workers.%s' % name)
 

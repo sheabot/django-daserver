@@ -76,13 +76,13 @@ class DaSDWorker(threading.Thread):
             finally:
                 time.sleep(self._sleep)
 
-        self.do_stop()
         log.info('Stopped')
 
     def stop(self):
         """Set stop signal"""
         log.info('%s: Stopping', self.name)
         self._stop_signal.set()
+        self.do_stop()
 
     def do_prepare(self):
         """This function is run once per thread after __init__ but

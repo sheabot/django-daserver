@@ -39,6 +39,7 @@ requests_view = DaSDRemoteTestRequestViews.as_view()
 class DaSDRemoteTestCompletedTorrentsView(DaSDRemoteTestView):
 
     # Create new completed torrent
+    # TODO: Take in a list of file sizes instead of a file count and total size
     def post(self, request, *args, **kwargs):
         # Validate input
         serializer = TestCreateTorrentSerializer(data=request.data)
@@ -49,29 +50,44 @@ class DaSDRemoteTestCompletedTorrentsView(DaSDRemoteTestView):
         file_count = serializer.data['file_count']
         total_size = serializer.data['total_size']
 
-        # Determine path
+        # Determine paths
+        # Torrent must be created in a temp directory and moved to
+        # the completed torrents directory to trigger inotify
+        temp_path = os.path.join(settings.DASDREMOTE['TEMP_DIR'], torrent)
         path = os.path.join(settings.DASDREMOTE['COMPLETED_TORRENTS_DIR'], torrent)
 
         if file_count == 1:
             # Torrent is one file
-            utils.write_random_file(path, total_size)
-            md5 = utils.compute_md5(path)
-            return Response([{'filename': torrent, 'md5': md5}])
+            utils.fs.write_random_file(temp_path, total_size)
+            shutil.move(temp_path, path)
+            md5 = utils.hash.compute_md5(path)
+            return Response([{'filename': torrent, 'filesize': total_size, 'md5': md5}])
 
         # Torrent is a directory of files
-        utils.mkdir_p(path)
+        utils.fs.mkdir_p(temp_path)
 
         file_size = total_size / file_count
+        remainder = total_size % file_count
         if file_size == 0:
             return HttpResponseBadRequest('Total size is not large enough for the number of files')
 
         response_data = []
+        i = -1
         for i in xrange(file_count):
             filename = '%s.%04d' % (torrent, i)
-            file_path = os.path.join(path, filename)
-            utils.write_random_file(file_path, file_size)
-            md5 = utils.compute_md5(file_path)
-            response_data.append({'filename': filename, 'md5': md5})
+            file_path = os.path.join(temp_path, filename)
+            utils.fs.write_random_file(file_path, file_size)
+            md5 = utils.hash.compute_md5(file_path)
+            response_data.append({'filename': filename, 'filesize': file_size, 'md5': md5})
+
+        if remainder > 0:
+            filename = '%s.%04d' % (torrent, i+1)
+            file_path = os.path.join(temp_path, filename)
+            utils.fs.write_random_file(file_path, remainder)
+            md5 = utils.hash.compute_md5(file_path)
+            response_data.append({'filename': filename, 'filesize': remainder, 'md5': md5})
+
+        shutil.move(temp_path, path)
 
         return Response(response_data)
 
@@ -90,14 +106,14 @@ class DaSDRemoteTestCompletedTorrentsView(DaSDRemoteTestView):
 
         # Delete directory contents
         if delete_all:
-            utils.rm_dir_contents(completed_torrents_dir)
+            utils.fs.rm_dir_contents(completed_torrents_dir)
             return Response('Cleared completed torrents directory')
 
         # Determine path
         path = os.path.join(completed_torrents_dir, torrent)
 
         # Delete path
-        utils.rm_rf(path)
+        utils.fs.rm_rf(path)
 
         return Response('Deleted completed torrent: %s' % torrent)
 
@@ -120,16 +136,25 @@ class DaSDRemoteTestPackagedTorrentsView(DaSDRemoteTestView):
 
         # Create package files(s)
         file_size = total_size / file_count
+        remainder = total_size % file_count
         if file_size == 0:
             return HttpResponseBadRequest('Total size is not large enough for the number of files')
 
         response_data = []
+        i = -1
         for i in xrange(file_count):
             filename = '%s.%04d' % (torrent, i)
             file_path = os.path.join(settings.DASDREMOTE['PACKAGED_TORRENTS_DIR'], filename)
-            utils.write_random_file(file_path, file_size)
-            md5 = utils.compute_md5(file_path)
-            response_data.append({'filename': filename, 'md5': md5})
+            utils.fs.write_random_file(file_path, file_size)
+            md5 = utils.hash.compute_md5(file_path)
+            response_data.append({'filename': filename, 'filesize': file_size, 'md5': md5})
+
+        if remainder > 0:
+            filename = '%s.%04d' % (torrent, i+1)
+            file_path = os.path.join(settings.DASDREMOTE['PACKAGED_TORRENTS_DIR'], filename)
+            utils.fs.write_random_file(file_path, remainder)
+            md5 = utils.hash.compute_md5(file_path)
+            response_data.append({'filename': filename, 'filesize': remainder, 'md5': md5})
 
         return Response(response_data)
 
@@ -149,14 +174,14 @@ class DaSDRemoteTestPackagedTorrentsView(DaSDRemoteTestView):
 
         # Delete directory contents
         if delete_all:
-            utils.rm_dir_contents(packaged_torrents_dir)
+            utils.fs.rm_dir_contents(packaged_torrents_dir)
             return Response('Cleared packaged torrents directory')
 
         # Determine path
         path = os.path.join(packaged_torrents_dir, torrent)
 
         # Delete path
-        utils.rm_rf(path)
+        utils.fs.rm_rf(path)
 
         return Response('Deleted packaged torrent: %s' % torrent)
 

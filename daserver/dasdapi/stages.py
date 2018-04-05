@@ -93,8 +93,8 @@ class Stage(object):
 class TorrentStage(Stage):
 
     ordered_stages = [
-        'Adding', 'Added',
         'Packaging', 'Packaged',
+        'Listing', 'Listed',
         'Downloading', 'Downloaded',
         'Extracting', 'Extracted',
         'Sorting', 'Completed',

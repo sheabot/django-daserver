@@ -6,13 +6,6 @@ from dasdaemon.workers.base import (
     DaSDPeriodicQueryFunction
 )
 
-from dasdaemon.workers.completed_torrent_monitor import CompletedTorrentMonitor
-
-from dasdaemon.workers.completed_torrent_packager import (
-    CompletedTorrentPackager,
-    CompletedTorrentPackagerOneTimeQueryFunction
-)
-
 from dasdaemon.workers.package_downloader import (
     PackageDownloader,
     PackageDownloaderOneTimeQueryFunction,
@@ -20,5 +13,12 @@ from dasdaemon.workers.package_downloader import (
 )
 
 from dasdaemon.workers.package_extractor import PackageExtractor
+
+from dasdaemon.workers.packaged_torrent_lister import (
+    PackagedTorrentLister,
+    PackagedTorrentListerOneTimeQueryFunction
+)
+
+from dasdaemon.workers.packaged_torrent_monitor import PackagedTorrentMonitor
 
 import dasdaemon.workers.error

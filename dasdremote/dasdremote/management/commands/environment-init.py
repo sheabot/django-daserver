@@ -32,5 +32,6 @@ class Command(BaseCommand):
         user.save()
 
         # Create directories
-        utils.mkdir_p(settings.DASDREMOTE['COMPLETED_TORRENTS_DIR'])
-        utils.mkdir_p(settings.DASDREMOTE['PACKAGED_TORRENTS_DIR'])
+        utils.fs.mkdir_p(settings.DASDREMOTE['TEMP_DIR'])
+        utils.fs.mkdir_p(settings.DASDREMOTE['COMPLETED_TORRENTS_DIR'])
+        utils.fs.mkdir_p(settings.DASDREMOTE['PACKAGED_TORRENTS_DIR'])

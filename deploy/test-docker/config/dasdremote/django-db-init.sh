@@ -17,5 +17,8 @@ python manage.py migrate
 # Create test user
 python manage.py environment-init --profile docker
 
+# Start dasdremote daemon
+python manage.py dasdremote-daemon --start --pidfile /files/dasdremote-daemon.pid
+
 # Start wsgi server
 gunicorn dasdremote.wsgi -b 0.0.0.0:8000

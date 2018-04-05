@@ -10,7 +10,6 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.views import APIView
 
 from dasdremote.authentication import DaSDRemoteTokenAuthentication
-import dasdremote.utils as utils
 
 
 class DaSDRemoteDownloadViews(APIView):

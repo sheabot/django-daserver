@@ -13,6 +13,10 @@ LOGGING = {
             'class': 'logging.FileHandler',
             'filename': SECRETS['log_file'],
         },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        }
     },
     'loggers': {
         'dasdremote': {
@@ -20,6 +24,11 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+        'DaServerDaemonRemote': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        }
     },
 }
 
