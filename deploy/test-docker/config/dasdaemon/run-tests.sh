@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Reset python bytecode files
+find . -name "*.pyc" -exec rm {} \;
+
 # Run tests
 export DASD_CONFIG=/config/dasd.cfg
 if [[ $# -eq 0 ]]; then
