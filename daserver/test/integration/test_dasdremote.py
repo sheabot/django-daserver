@@ -4,13 +4,13 @@ import requests
 import shutil
 import tempfile
 
-from django.test import TestCase
-
-import common
 from dasdaemon.managers import RequestsManager
 
+import test.common as common
+from test.unit import DaServerUnitTest
 
-class DaSDRemoteDownloadTests(TestCase):
+
+class DaSDRemoteUnitTests(DaServerUnitTest):
 
     def setUp(self):
         # Get test config

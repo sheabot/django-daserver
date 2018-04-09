@@ -13,23 +13,6 @@ class ConfigFileNotFoundError(Exception):
     pass
 
 
-# TODO: Figure out what the plan was for this
-def load_test_config2(config_file_name=_CONFIG_FILE_NAME, section=None):
-    # Get path to config file
-    working_dir = os.path.dirname(os.path.abspath(__file__))
-    config_file_path = os.path.join(working_dir, 'config', config_file_name)
-
-    # Parse config
-    dasd_config = DaSDConfig()
-    config = dasd_config.read(config_file_path)
-    if config == []:
-        raise ConfigFileNotFoundError
-
-    if section is None:
-        return dasd_config
-    else:
-        return dasd_config.get_section(section)
-
 def load_test_config(config_file_name=_CONFIG_FILE_NAME):
     # Get path to config file
     working_dir = os.path.dirname(os.path.abspath(__file__))

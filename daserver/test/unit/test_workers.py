@@ -1,8 +1,9 @@
 from mock import patch
 
-from django.test import TestCase
 from dasdaemon.managers import QueueManager
 from dasdaemon.workers import DaSDWorker
+
+from test.unit import DaServerUnitTest
 
 
 # DaSDWorker subclass
@@ -10,7 +11,7 @@ class TestWorker(DaSDWorker):
     pass
 
 
-class DasDWorkerTests(TestCase):
+class DasDWorkerUnitTests(DaServerUnitTest):
 
     def setUp(self):
         # Create Queue Manager

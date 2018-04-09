@@ -1,10 +1,10 @@
-from django.test import TestCase
-
 from dasdaemon.managers import DatabaseManager
 from dasdapi.models import Torrent
 
+from test.unit import DaServerUnitTest
 
-class DatabaseManagerTests(TestCase):
+
+class DatabaseManagerUnitTests(DaServerUnitTest):
 
     def setUp(self):
         # Create database manager

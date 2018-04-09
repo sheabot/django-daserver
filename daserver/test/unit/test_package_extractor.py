@@ -1,20 +1,12 @@
-import os
-import tarfile
-import tempfile
-
-from django.test import TestCase
-
-import common
-from dasdaemon.managers import (
-    DatabaseManager,
-    PathManager,
-    QueueManager
-)
-import dasdaemon.utils as utils
+from dasdaemon.managers import PathManager
 from dasdaemon.workers import PackageExtractor
 from dasdapi.models import Torrent, PackageFile
 
-class PackageExtractorTests(TestCase):
+import test.common as common
+from test.unit import DaServerUnitTest
+
+
+class PackageExtractorUnitTests(DaServerUnitTest):
 
     def setUp(self):
         # Get test config
@@ -135,129 +127,3 @@ class PackageExtractorTests(TestCase):
         self.assertEqual(package_file_names2[1], package_file_set2[2].filename)
         self.assertEqual(package_file_names2[2], package_file_set2[3].filename)
         self.assertEqual(package_file_names2[0], package_file_set2[4].filename)
-
-    '''
-    def test_create_package_archive(self):
-        # Create torrent
-        torrent = Torrent.objects.create(name='Torrent')
-
-        # Create random file and calculate hash
-        tmpdir = tempfile.mkdtemp()
-        filename = 'file1.bin'
-        filepath = os.path.join(tmpdir, filename)
-        utils.fs.write_random_file(filepath, 10240)
-        md5_file = utils.hash.md5_file(filepath)
-
-        # Create tarball of random file
-        tarpath = torrent.name + '.tar'
-        utils.arc.create_tar_file(tarpath, [filepath], basenames=True)
-
-        # Split tarball
-        package_files_dir = self.pm.create_package_files_dir(torrent)
-        split_files = utils.fs.split_file(tarpath, package_files_dir, 1024)
-
-        # Delete initial files
-        utils.fs.rm_rf(tmpdir)
-
-        # Recreate package archive
-        package_archive = self.pe._create_package_archive(torrent, split_files)
-
-        # Verify package archive exists
-        self.assertTrue(os.path.exists(package_archive))
-
-        # Get package archive contents
-        contents = None
-        with tarfile.open(package_archive) as tar:
-            contents = tar.getnames()
-
-        # Verify contents
-        self.assertEqual(1, len(contents))
-        self.assertEqual(filename, contents[0])
-
-        # Verify file data is correct
-        data = None
-        with tarfile.open(package_archive) as tar:
-            data = tar.extractfile(filename).read()
-        self.assertEqual(md5_file, utils.hash.md5_bytes(data))
-
-        # Cleanup
-        utils.fs.rm_rf(package_files_dir)
-    '''
-
-
-class PackageExtractorIntegrationTests(TestCase):
-
-    def setUp(self):
-        # Get test config
-        self.config = common.load_test_config()
-
-        # Create managers
-        self.pm = PathManager(config=self.config)
-        self.db = DatabaseManager()
-        self.qm = QueueManager(database_manager=self.db)
-
-        # Create package extractor
-        self.pe = PackageExtractor(
-            config=self.config,
-            path_manager=self.pm,
-            queue_manager=self.qm
-        )
-
-        # Register as consumer
-        self.pe.register_as_consumer()
-
-    def test_do_work(self):
-        # Create torrent
-        torrent = Torrent.objects.create(
-            name='Torrent',
-            stage=self.pe.ready_stage()
-        )
-
-        # Create random file and calculate hash
-        tmpdir = tempfile.mkdtemp()
-        filename = 'file1.bin'
-        filepath = os.path.join(tmpdir, filename)
-        utils.fs.write_random_file(filepath, 10240)
-        md5_file = utils.hash.md5_file(filepath)
-
-        # Create tarball of random file
-        tarpath = os.path.join(tmpdir, torrent.name + '.tar')
-        utils.arc.create_tar_file(tarpath, [filepath], basenames=True)
-
-        # Split tarball into package files
-        package_files_dir = self.pm.create_package_files_dir(torrent)
-        package_file_set = utils.fs.split_file(tarpath, package_files_dir, 1024)
-
-        # Add package files to database
-        for package_file in package_file_set:
-            PackageFile.objects.create(
-                filename=package_file,
-                torrent=torrent,
-                stage='Blah'
-            )
-
-        # Delete initial files
-        utils.fs.rm_rf(tmpdir)
-
-        # Run queue manager
-        self.qm._execute_queries()
-
-        # Run package extractor
-        self.pe.do_work()
-
-        # Verify original file was extracted to package output directory
-        package_output_directory = self.pm.get_package_output_dir(torrent)
-        original_file = os.path.join(package_output_directory, filename)
-        self.assertTrue(os.path.exists(original_file))
-        self.assertEqual(md5_file, utils.hash.md5_file(original_file))
-
-        # Verify permissions are correct
-        owner, group = utils.fs.get_ownership_names(original_file)
-        self.assertEqual(self.pm.unsorted_package_dir.owner, owner)
-        self.assertEqual(self.pm.unsorted_package_dir.group, group)
-
-        # Verify package archive and files were cleaned up
-        self.assertFalse(os.path.exists(package_files_dir))
-
-        # Cleanup
-        utils.fs.rm_rf(package_output_directory)

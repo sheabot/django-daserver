@@ -2,13 +2,13 @@ import json
 import responses
 import time
 
-from django.test import TestCase
-
-import common
 from dasdaemon.managers import RequestsManager
 
+import test.common as common
+from test.integration import DaServerIntegrationTest
 
-class RequestsManagerTests(TestCase):
+
+class RequestsManagerTests(DaServerIntegrationTest):
 
     def setUp(self):
          # Get test config

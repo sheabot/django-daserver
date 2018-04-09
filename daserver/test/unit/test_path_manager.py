@@ -1,16 +1,16 @@
 import os
 
-from django.test import TestCase
-
-import common
 from dasdaemon.exceptions import PathError
 from dasdaemon.managers import PathManager
 from dasdaemon.managers.path_manager import PathConfig
 import dasdaemon.utils as utils
 from dasdapi.models import Torrent, PackageFile
 
+import test.common as common
+from test.unit import DaServerUnitTest
 
-class PathManagerTests(TestCase):
+
+class PathManagerUnitTests(DaServerUnitTest):
 
     def setUp(self):
         # Get test config

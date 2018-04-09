@@ -1,12 +1,13 @@
 import time
 
-from django.test import TestCase
 from mock import patch
 
 from dasdaemon.exceptions import DaSDError
 from dasdaemon.workers.error import ErrorHandlerPeriodicQueryFunction
 from dasdapi.models import Torrent
 from dasdapi.stages import TorrentStage
+
+from test.unit import DaServerUnitTest
 
 
 class DaSDTestError1(DaSDError):
@@ -21,7 +22,7 @@ class DaSDTestError2(DaSDError):
     'P2', 'C2',
     'P3', 'C3'
 ])
-class ErrorHandlerTests(TestCase):
+class ErrorHandlerUnitTests(DaServerUnitTest):
 
     def setUp(self):
         # Create Torrent

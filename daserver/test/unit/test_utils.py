@@ -2,12 +2,12 @@ import os
 import tarfile
 import tempfile
 
-from django.test import TestCase
-
 import dasdaemon.utils as utils
 
+from test.unit import DaServerUnitTest
 
-class UtilsArcCreateTarFileTests(TestCase):
+
+class UtilsArcCreateTarFileUnitTests(DaServerUnitTest):
 
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
@@ -93,7 +93,7 @@ class UtilsArcCreateTarFileTests(TestCase):
             self.assertFalse(utils.arc.is_master_rar_file(filename))
 
 
-class UtilsFsWriteRandomFileTests(TestCase):
+class UtilsFsWriteRandomFileUnitTests(DaServerUnitTest):
 
     def setUp(self):
         self.tmpfile, self.tmpfile_path = tempfile.mkstemp()
@@ -118,7 +118,7 @@ class UtilsFsWriteRandomFileTests(TestCase):
         self.assertEqual(bytes, os.path.getsize(self.tmpfile_path))
 
 
-class UtilsFsJoinFilesTests(TestCase):
+class UtilsFsJoinFilesUnitTests(DaServerUnitTest):
 
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp()
@@ -235,7 +235,7 @@ class UtilsFsJoinFilesTests(TestCase):
         self.assertEqual(md5_source, md5_output)
 
 
-class UtilsHashJoinFilesTests(TestCase):
+class UtilsHashJoinFilesUnitTests(DaServerUnitTest):
 
     def test_md5_bytes(self):
         # Verify hash
