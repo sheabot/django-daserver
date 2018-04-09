@@ -1,13 +1,13 @@
 from Queue import Queue
 
-from django.test import TestCase
-
 from dasdaemon.managers import (
     DatabaseManager,
     QueueManager
 )
 from dasdaemon.managers.queue_manager import Consumer
 from dasdapi.models import PackageFile, Torrent
+
+from test.unit import DaServerUnitTest
 
 
 def _create_torrents(consumer, num_torrents):
@@ -31,7 +31,7 @@ def _create_package_files(consumer, num_package_files):
         )
     return torrent, package_files
 
-class QueueManagerTorrentConsumerTests(TestCase):
+class QueueManagerTorrentConsumerUnitTests(DaServerUnitTest):
 
     def setUp(self):
         # Create queue manager
@@ -227,7 +227,7 @@ class QueueManagerTorrentConsumerTests(TestCase):
         self.assertEqual(queue2.get(), None)
 
 
-class QueueManagerPackageFileConsumerTests(TestCase):
+class QueueManagerPackageFileConsumerUnitTests(DaServerUnitTest):
 
     def setUp(self):
         # Create queue manager
@@ -434,7 +434,7 @@ class QueueManagerPackageFileConsumerTests(TestCase):
         self.assertEqual(queue2.get(), None)
 
 
-class QueueManagerWithDatabaseManagerTests(TestCase):
+class QueueManagerWithDatabaseManagerUnitTests(DaServerUnitTest):
 
     def setUp(self):
         # Create database manager

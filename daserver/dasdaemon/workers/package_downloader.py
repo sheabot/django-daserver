@@ -166,8 +166,12 @@ class PackageDownloader(DaSDWorker):
 
     def _verify_package_file(self, torrent, package_file):
         # Get package file properties
-        filesize = self._get_local_filesize(torrent, package_file)
-        sha256 = utils.hash.sha256_file(self.path_manager.get_package_file_path(torrent, package_file))
+        try:
+            filesize = self._get_local_filesize(torrent, package_file)
+            sha256 = utils.hash.sha256_file(self.path_manager.get_package_file_path(torrent, package_file))
+        except:
+            log.exception('Failed to get package file properties')
+            return False
 
         # Verify properties
         if package_file.filesize != filesize:

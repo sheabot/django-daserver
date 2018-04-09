@@ -1,8 +1,5 @@
 from mock import patch
 
-from django.test import TestCase
-
-import common
 from dasdaemon.managers import (
     DatabaseManager,
     PathManager,
@@ -24,6 +21,9 @@ from dasdaemon.workers import (
 )
 from dasdaemon.workers.error import ErrorHandlerPeriodicQueryFunction
 
+import test.common as common
+from test.unit import DaServerUnitTest
+
 
 class TestOneTimeQueryFunction(DaSDOneTimeQueryFunction):
     pass
@@ -33,7 +33,7 @@ class TestPeriodicQueryFunction(DaSDPeriodicQueryFunction):
     pass
 
 
-class WorkerManagerTests(TestCase):
+class WorkerManagerUnitTests(DaServerUnitTest):
 
     def setUp(self):
         # Config

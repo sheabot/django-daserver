@@ -1,6 +1,6 @@
-from django.test import TestCase
-
 from dasdapi.stages import Stage, StageDoesNotExist
+
+from test.unit import DaServerUnitTest
 
 
 class TestStage(Stage):
@@ -12,7 +12,7 @@ class TestStage(Stage):
     ]
 
 
-class StagesTests(TestCase):
+class StagesUnitTests(DaServerUnitTest):
 
     def test_init(self):
         stage = TestStage()
