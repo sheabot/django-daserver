@@ -20,6 +20,7 @@ def md5_bytes(bytestring):
     return md5.hexdigest()
 
 def sha256_file(filepath, block_size=4096):
+    """Calculate SHA256 of file"""
     sha256 = hashlib.sha256()
     with open(filepath, 'rb') as in_file:
         while True:
@@ -27,4 +28,10 @@ def sha256_file(filepath, block_size=4096):
             if not chunk:
                 break
             sha256.update(chunk)
+    return sha256.hexdigest()
+
+def sha256_bytes(bytestring):
+    """Calculate SHA256 of bytestring"""
+    sha256 = hashlib.sha256()
+    sha256.update(bytestring)
     return sha256.hexdigest()
