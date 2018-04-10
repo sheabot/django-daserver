@@ -4,8 +4,8 @@ import tempfile
 
 from django.test import TestCase
 
-from dasdaemon.remote.package_torrent import TorrentPackage, TorrentDoesNotExistException
-import dasdaemon.utils as utils
+from dasdremote.torrent_package import TorrentPackage, TorrentDoesNotExistException
+import dasdremote.utils as utils
 
 SIZE_1MB = 1024 * 1024
 
@@ -19,24 +19,12 @@ class PackageTorrentTests(TestCase):
         # Remove test directory
         shutil.rmtree(self.test_dir)
 
-    def _create_file(self, path, size_bytes, block_size=SIZE_1MB):
-        with open(path, 'wb') as f:
-            bytes_written = 0
-            # TODO: This math doesn't add up
-            while bytes_written < size_bytes:
-                f.write(os.urandom(block_size))
-                bytes_written += block_size
-            while bytes_written < size_bytes:
-                f.write(os.urandom(1))
-                bytes_written += block_size
-
-
     def test_package_file(self):
         # Create source file
         filename = 'test-file.bin'
         filesize = SIZE_1MB * 20
         source_path = os.path.join(self.test_dir, filename)
-        self._create_file(source_path, filesize)
+        utils.fs.write_random_file(source_path, filesize)
 
         # Create instance
         split_bytes = SIZE_1MB
@@ -47,7 +35,7 @@ class PackageTorrentTests(TestCase):
         self.assertTrue(os.path.isfile(archive_path))
 
         # Split archive
-        split_files = tp.split_archive()
+        split_files = [split_file for split_file in tp.split_archive()]
 
         # Verify number of split files
         expected_num_split_files = filesize / split_bytes + 1
@@ -55,13 +43,16 @@ class PackageTorrentTests(TestCase):
         self.assertEqual(expected_num_split_files, num_split_files)
 
         for sf in split_files:
-            path = os.path.join(self.test_dir, sf)
+            path = os.path.join(self.test_dir, sf['filename'])
 
             # Verify split file exist
             self.assertTrue(os.path.isfile(path))
 
             # Verify split file size
             self.assertLessEqual(os.path.getsize(path), split_bytes)
+
+            # Verify split file sha256
+            self.assertLessEqual(utils.hash.compute_sha256(path), sf['sha256'])
 
         # Remove archive
         tp.remove_archive()
@@ -77,7 +68,7 @@ class PackageTorrentTests(TestCase):
         filename = 'test-file.bin'
         filesize = SIZE_1MB * 20
         filepath = os.path.join(source_path, filename)
-        self._create_file(filepath, filesize)
+        utils.fs.write_random_file(filepath, filesize)
 
         # Create instance
         split_bytes = SIZE_1MB
@@ -88,7 +79,7 @@ class PackageTorrentTests(TestCase):
         self.assertTrue(os.path.isfile(archive_path))
 
         # Split archive
-        split_files = tp.split_archive()
+        split_files = [split_file for split_file in tp.split_archive()]
 
         # Verify number of split files
         expected_num_split_files = filesize / split_bytes + 1
@@ -96,13 +87,16 @@ class PackageTorrentTests(TestCase):
         self.assertEqual(expected_num_split_files, num_split_files)
 
         for sf in split_files:
-            path = os.path.join(self.test_dir, sf)
+            path = os.path.join(self.test_dir, sf['filename'])
 
             # Verify split file exist
             self.assertTrue(os.path.isfile(path))
 
             # Verify split file size
             self.assertLessEqual(os.path.getsize(path), split_bytes)
+
+            # Verify split file sha256
+            self.assertLessEqual(utils.hash.compute_sha256(path), sf['sha256'])
 
         # Remove archive
         tp.remove_archive()
