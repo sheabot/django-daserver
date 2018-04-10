@@ -157,9 +157,9 @@ class UtilsFsJoinFilesUnitTests(DaServerUnitTest):
         with open(sourcefile3, 'rb') as in_file:
             contents3 = in_file.read()
 
-        md5_source = utils.hash.md5_bytes(contents1+contents2+contents3)
-        md5_output = utils.hash.md5_file(output_file)
-        self.assertEqual(md5_source, md5_output)
+        sha256_source = utils.hash.sha256_bytes(contents1+contents2+contents3)
+        sha256_output = utils.hash.sha256_file(output_file)
+        self.assertEqual(sha256_source, sha256_output)
 
 
     def test_join_files_large_same_size(self):
@@ -193,9 +193,9 @@ class UtilsFsJoinFilesUnitTests(DaServerUnitTest):
         with open(sourcefile3, 'rb') as in_file:
             contents3 = in_file.read()
 
-        md5_source = utils.hash.md5_bytes(contents1+contents2+contents3)
-        md5_output = utils.hash.md5_file(output_file)
-        self.assertEqual(md5_source, md5_output)
+        sha256_source = utils.hash.sha256_bytes(contents1+contents2+contents3)
+        sha256_output = utils.hash.sha256_file(output_file)
+        self.assertEqual(sha256_source, sha256_output)
 
     def test_join_files_different_sizes(self):
         # Create source files
@@ -230,9 +230,9 @@ class UtilsFsJoinFilesUnitTests(DaServerUnitTest):
         with open(sourcefile3, 'rb') as in_file:
             contents3 = in_file.read()
 
-        md5_source = utils.hash.md5_bytes(contents1+contents2+contents3)
-        md5_output = utils.hash.md5_file(output_file)
-        self.assertEqual(md5_source, md5_output)
+        sha256_source = utils.hash.sha256_bytes(contents1+contents2+contents3)
+        sha256_output = utils.hash.sha256_file(output_file)
+        self.assertEqual(sha256_source, sha256_output)
 
 
 class UtilsHashJoinFilesUnitTests(DaServerUnitTest):
@@ -254,3 +254,36 @@ class UtilsHashJoinFilesUnitTests(DaServerUnitTest):
 
         # Verify hash
         self.assertEqual('5d41402abc4b2a76b9719d911017c592', utils.hash.md5_file(tmpfile_path))
+
+    def test_sha256_bytes(self):
+        # Verify hash
+        self.assertEqual(
+            '2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824',
+            utils.hash.sha256_bytes('hello')
+        )
+        self.assertEqual(
+            'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+            utils.hash.sha256_bytes('')
+        )
+        self.assertEqual(
+            'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad',
+            utils.hash.sha256_bytes('abc')
+        )
+        self.assertEqual(
+            '5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5',
+            utils.hash.sha256_bytes('12345')
+        )
+
+    def test_sha256_file(self):
+        # Create temp file
+        _, tmpfile_path = tempfile.mkstemp()
+
+        # Write data to file
+        with open(tmpfile_path, 'wb') as out_file:
+            out_file.write('hello')
+
+        # Verify hash
+        self.assertEqual(
+            '2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824',
+            utils.hash.sha256_file(tmpfile_path)
+        )

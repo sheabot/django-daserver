@@ -47,7 +47,7 @@ class PackageExtractorIntegrationTests(DaServerIntegrationTest):
         filename = 'file1.bin'
         filepath = os.path.join(tmpdir, filename)
         utils.fs.write_random_file(filepath, 10240)
-        md5_file = utils.hash.md5_file(filepath)
+        sha256 = utils.hash.sha256_file(filepath)
 
         # Create tarball of random file
         tarpath = os.path.join(tmpdir, torrent.name + '.tar')
@@ -78,7 +78,7 @@ class PackageExtractorIntegrationTests(DaServerIntegrationTest):
         package_output_directory = self.pm.get_package_output_dir(torrent)
         original_file = os.path.join(package_output_directory, filename)
         self.assertTrue(os.path.exists(original_file))
-        self.assertEqual(md5_file, utils.hash.md5_file(original_file))
+        self.assertEqual(sha256, utils.hash.sha256_file(original_file))
 
         # Verify permissions are correct
         owner, group = utils.fs.get_ownership_names(original_file)

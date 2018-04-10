@@ -64,7 +64,7 @@ class DaSDRemoteUnitTests(DaServerUnitTest):
         # Write to local file
         self._write_request_to_file(r, self.download_path)
 
-        # Verify size and md5 of local file
+        # Verify size and sha256 of local file
         self.assertEqual(self.test_filesize, os.path.getsize(self.download_path))
         sha256 = utils.hash.sha256_file(self.download_path)
         self.assertEqual(self.test_filehash, sha256)
@@ -92,7 +92,7 @@ class DaSDRemoteUnitTests(DaServerUnitTest):
         # Append to local file
         self._write_request_to_file(r, self.download_path, mode='ab')
 
-        # Verify size and md5 of local file
+        # Verify size and sha256 of local file
         self.assertEqual(self.test_filesize, os.path.getsize(self.download_path))
         sha256 = utils.hash.sha256_file(self.download_path)
         self.assertEqual(self.test_filehash, sha256)
