@@ -60,8 +60,8 @@ class DaSDRemoteTestCompletedTorrentsView(DaSDRemoteTestView):
             # Torrent is one file
             utils.fs.write_random_file(temp_path, total_size)
             shutil.move(temp_path, path)
-            md5 = utils.hash.compute_md5(path)
-            return Response([{'filename': torrent, 'filesize': total_size, 'md5': md5}])
+            sha256 = utils.hash.compute_sha256(path)
+            return Response([{'filename': torrent, 'filesize': total_size, 'sha256': sha256}])
 
         # Torrent is a directory of files
         utils.fs.mkdir_p(temp_path)
@@ -77,15 +77,15 @@ class DaSDRemoteTestCompletedTorrentsView(DaSDRemoteTestView):
             filename = '%s.%04d' % (torrent, i)
             file_path = os.path.join(temp_path, filename)
             utils.fs.write_random_file(file_path, file_size)
-            md5 = utils.hash.compute_md5(file_path)
-            response_data.append({'filename': filename, 'filesize': file_size, 'md5': md5})
+            sha256 = utils.hash.compute_sha256(file_path)
+            response_data.append({'filename': filename, 'filesize': file_size, 'sha256': sha256})
 
         if remainder > 0:
             filename = '%s.%04d' % (torrent, i+1)
             file_path = os.path.join(temp_path, filename)
             utils.fs.write_random_file(file_path, remainder)
-            md5 = utils.hash.compute_md5(file_path)
-            response_data.append({'filename': filename, 'filesize': remainder, 'md5': md5})
+            sha256 = utils.hash.compute_sha256(file_path)
+            response_data.append({'filename': filename, 'filesize': remainder, 'sha256': sha256})
 
         shutil.move(temp_path, path)
 
@@ -146,15 +146,15 @@ class DaSDRemoteTestPackagedTorrentsView(DaSDRemoteTestView):
             filename = '%s.%04d' % (torrent, i)
             file_path = os.path.join(settings.DASDREMOTE['PACKAGED_TORRENTS_DIR'], filename)
             utils.fs.write_random_file(file_path, file_size)
-            md5 = utils.hash.compute_md5(file_path)
-            response_data.append({'filename': filename, 'filesize': file_size, 'md5': md5})
+            sha256 = utils.hash.compute_sha256(file_path)
+            response_data.append({'filename': filename, 'filesize': file_size, 'sha256': sha256})
 
         if remainder > 0:
             filename = '%s.%04d' % (torrent, i+1)
             file_path = os.path.join(settings.DASDREMOTE['PACKAGED_TORRENTS_DIR'], filename)
             utils.fs.write_random_file(file_path, remainder)
-            md5 = utils.hash.compute_md5(file_path)
-            response_data.append({'filename': filename, 'filesize': remainder, 'md5': md5})
+            sha256 = utils.hash.compute_sha256(file_path)
+            response_data.append({'filename': filename, 'filesize': remainder, 'sha256': sha256})
 
         return Response(response_data)
 
