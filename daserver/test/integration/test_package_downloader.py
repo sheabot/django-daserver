@@ -47,34 +47,17 @@ class PackageDownloaderTests(DaServerIntegrationTest):
     def _set_no_write_dir(self, dirpath):
         os.chmod(dirpath, 0o555)
 
-    def _create_package_files(self, package_files_count, torrent_name='Torrent'):
-        # Add Torrent to database
-        torrent = Torrent.objects.create(name=torrent_name)
-
-        # Add Package Files to database
-        for i in xrange(package_files_count):
-            filename = '%s.%04d' % (torrent.name, i)
-            PackageFile.objects.create(
-                filename=filename,
-                torrent=torrent,
-                stage=PackageDownloader.package_file_ready_stage()
-            )
-
-        # Get Package Files to return
-        package_files = PackageFile.objects.filter(torrent=torrent)
-
-        return torrent, package_files
-
     def test_do_work_one_file(self):
         # Create package file on remote host
         remote_filename = 'Packaged.file'
-        r = self.helper.create_packaged_torrent(remote_filename)
-        self.assertEqual(r.status_code, 200)
+        json = self.helper.create_packaged_torrent(remote_filename)
 
         # Add package file to database
         torrent = Torrent.objects.create(name='Torrent')
         package_file = PackageFile.objects.create(
             filename='%s.0000' % remote_filename,
+            filesize=json[0]['filesize'],
+            sha256=json[0]['sha256'],
             torrent=torrent,
             stage=self.pd.package_file_ready_stage()
         )
@@ -100,13 +83,14 @@ class PackageDownloaderTests(DaServerIntegrationTest):
     def test_do_work_no_perms(self):
         # Create Package File on remote host
         remote_filename = 'Packaged.file'
-        r = self.helper.create_packaged_torrent(remote_filename)
-        self.assertEqual(r.status_code, 200)
+        json = self.helper.create_packaged_torrent(remote_filename)
 
         # Add Package File to database
         torrent = Torrent.objects.create(name='Torrent')
         package_file = PackageFile.objects.create(
             filename='%s.0000' % remote_filename,
+            filesize=json[0]['filesize'],
+            sha256=json[0]['sha256'],
             torrent=torrent,
             stage=self.pd.package_file_ready_stage()
         )
@@ -135,18 +119,21 @@ class PackageDownloaderTests(DaServerIntegrationTest):
     def test_do_work_two_files(self):
         # Create package file on remote host
         remote_filename = 'Packaged.file'
-        r = self.helper.create_packaged_torrent(remote_filename, file_count=2)
-        self.assertEqual(r.status_code, 200)
+        json = self.helper.create_packaged_torrent(remote_filename, file_count=2)
 
         # Add package files to database
         torrent = Torrent.objects.create(name='Torrent')
         package_file1 = PackageFile.objects.create(
             filename='%s.0000' % remote_filename,
+            filesize=json[0]['filesize'],
+            sha256=json[0]['sha256'],
             torrent=torrent,
             stage=self.pd.package_file_ready_stage()
         )
         package_file2 = PackageFile.objects.create(
             filename='%s.0001' % remote_filename,
+            filesize=json[1]['filesize'],
+            sha256=json[1]['sha256'],
             torrent=torrent,
             stage=self.pd.package_file_ready_stage()
         )
@@ -183,13 +170,14 @@ class PackageDownloaderTests(DaServerIntegrationTest):
         # Create package file on remote host
         remote_filename = 'Packaged.file'
         filesize = 1234
-        r = self.helper.create_packaged_torrent(remote_filename, total_size=filesize)
-        self.assertEqual(r.status_code, 200)
+        json = self.helper.create_packaged_torrent(remote_filename, total_size=filesize)
 
         # Add package file to database
         torrent = Torrent.objects.create(name='Torrent')
         package_file = PackageFile.objects.create(
             filename='%s.0000' % remote_filename,
+            filesize=json[0]['filesize'],
+            sha256=json[0]['sha256'],
             torrent=torrent,
             stage=self.pd.package_file_ready_stage()
         )
@@ -222,13 +210,14 @@ class PackageDownloaderTests(DaServerIntegrationTest):
         # Create package file on remote host
         remote_filename = 'Packaged.file'
         filesize = 1234
-        r = self.helper.create_packaged_torrent(remote_filename, total_size=filesize)
-        self.assertEqual(r.status_code, 200)
+        json = self.helper.create_packaged_torrent(remote_filename, total_size=filesize)
 
         # Add package file to database
         torrent = Torrent.objects.create(name='Torrent')
         package_file = PackageFile.objects.create(
             filename='%s.0000' % remote_filename,
+            filesize=json[0]['filesize'],
+            sha256=json[0]['sha256'],
             torrent=torrent,
             stage=self.pd.package_file_ready_stage()
         )
