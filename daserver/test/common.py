@@ -43,7 +43,7 @@ class TestHelper(object):
         self.requests_manager = requests_manager
 
     def create_completed_torrent(self, torrent, file_count=1, total_size=1024):
-        return self.requests_manager.post(
+        r = self.requests_manager.post(
             self.completed_torrents_url,
             data={
                 'torrent': torrent,
@@ -51,6 +51,8 @@ class TestHelper(object):
                 'total_size': total_size
             }
         )
+        assert r.status_code == 200
+        return r.json()
 
     def delete_completed_torrent(self, torrent):
         return self.requests_manager.delete(
@@ -61,16 +63,18 @@ class TestHelper(object):
         )
 
     def delete_all_completed_torrents(self):
-        return self.requests_manager.delete(
+        r = self.requests_manager.delete(
             self.completed_torrents_url,
             data={
                 'torrent': 'all',
                 'delete_all': True
             }
         )
+        assert r.status_code == 200
+        return r
 
     def create_packaged_torrent(self, torrent, file_count=1, total_size=1024):
-        return self.requests_manager.post(
+        r = self.requests_manager.post(
             self.packaged_torrents_url,
             data={
                 'torrent': torrent,
@@ -78,14 +82,19 @@ class TestHelper(object):
                 'total_size': total_size
             }
         )
+        assert r.status_code == 200
+        return r.json()
 
     def delete_packaged_torrent(self, torrent):
-        return self.requests_manager.delete(
+        r = self.requests_manager.delete(
             self.packaged_torrents_url,
             data={
                 'torrent': torrent
             }
         )
+        assert r.status_code == 200
+        return r
+
 
     def delete_all_packaged_torrents(self):
         return self.requests_manager.delete(

@@ -5,6 +5,7 @@ import shutil
 import tempfile
 
 from dasdaemon.managers import RequestsManager
+import dasdaemon.utils as utils
 
 import test.common as common
 from test.unit import DaServerUnitTest
@@ -28,13 +29,11 @@ class DaSDRemoteUnitTests(DaServerUnitTest):
 
         # Create test file
         self.test_filesize = 1048576
-        r = self.helper.create_packaged_torrent('File1.bin', total_size=self.test_filesize)
-        self.assertEqual(r.status_code, 200)
+        json = self.helper.create_packaged_torrent('File1.bin', total_size=self.test_filesize)
 
         # Save test file info
-        data = r.json()[0]
-        self.test_filename = data['filename']
-        self.test_filehash = data['md5']
+        self.test_filename = json[0]['filename']
+        self.test_filehash = json[0]['sha256']
         self.url = self._get_download_url(self.test_filename)
         self.download_path = os.path.join(self.tmp, self.test_filename)
 
@@ -43,7 +42,7 @@ class DaSDRemoteUnitTests(DaServerUnitTest):
         shutil.rmtree(self.tmp)
 
         # Delete remote file
-        r = self.helper.delete_packaged_torrent(self.test_filename)
+        self.helper.delete_packaged_torrent(self.test_filename)
 
     def _get_download_url(self, path):
         return self.download_url + path
@@ -54,16 +53,6 @@ class DaSDRemoteUnitTests(DaServerUnitTest):
             for chunk in r.iter_content(chunk_size=1024):
                 if chunk:
                     f.write(chunk)
-
-    def _compute_md5(self, path):
-        md5 = hashlib.md5()
-        with open(path, 'rb') as f:
-            while True:
-                chunk = f.read(1024)
-                if not chunk:
-                    break
-                md5.update(chunk)
-        return md5.hexdigest()
 
     def test_dasdremote_download(self):
         # Send request
@@ -77,8 +66,8 @@ class DaSDRemoteUnitTests(DaServerUnitTest):
 
         # Verify size and md5 of local file
         self.assertEqual(self.test_filesize, os.path.getsize(self.download_path))
-        md5 = self._compute_md5(self.download_path)
-        self.assertEqual(self.test_filehash, md5)
+        sha256 = utils.hash.sha256_file(self.download_path)
+        self.assertEqual(self.test_filehash, sha256)
 
     def test_dasdremote_download_resume(self):
         # Send request for half of file
@@ -105,5 +94,5 @@ class DaSDRemoteUnitTests(DaServerUnitTest):
 
         # Verify size and md5 of local file
         self.assertEqual(self.test_filesize, os.path.getsize(self.download_path))
-        md5 = self._compute_md5(self.download_path)
-        self.assertEqual(self.test_filehash, md5)
+        sha256 = utils.hash.sha256_file(self.download_path)
+        self.assertEqual(self.test_filehash, sha256)
