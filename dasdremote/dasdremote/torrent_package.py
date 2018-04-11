@@ -5,6 +5,8 @@ import shutil
 import sys
 import tarfile
 
+import dasdremote.utils as utils
+
 
 class TorrentDoesNotExistException(Exception):
     pass
@@ -12,7 +14,7 @@ class TorrentDoesNotExistException(Exception):
 
 class TorrentPackage(object):
 
-    def __init__(self, source_path, output_dir, split_size):
+    def __init__(self, source_path, output_dir, min_package_file_size=1, max_package_files=1000):
         # Absolute path to source file or directory
         self.source_path = os.path.abspath(source_path)
 
@@ -25,12 +27,19 @@ class TorrentPackage(object):
         # Absolute path for output files
         self.output_dir = os.path.abspath(output_dir)
 
-        # File split size in bytes
-        self.split_size = split_size
-        self.split_files = []
+        # File split parameters
+        self.min_package_file_size = min_package_file_size
+        self.max_package_files = max_package_files
 
         # Absolute path to archive file
         self.archive_path = os.path.join(self.output_dir, "%s.tar" % self.source_name)
+
+    def get_package_file_size(self, total_archive_size):
+        if total_archive_size / self.min_package_file_size > self.max_package_files:
+            package_file_size = total_archive_size / (self.max_package_files - 1)
+        else:
+            package_file_size = self.min_package_file_size
+        return package_file_size
 
     def set_permissions(self):
         # Set permissions on source path
@@ -53,28 +62,45 @@ class TorrentPackage(object):
 
         return self.archive_path
 
-    def split_archive(self):
+    def split_archive(self, chunk_size=16*utils.size.KB):
         # Check for archive file existance
         if not os.path.isfile(self.archive_path):
             raise RuntimeError("Could not find archive: %s" % self.archive_path)
 
+        # Determine package file size
+        archive_size = os.path.getsize(self.archive_path)
+        package_file_size = self.get_package_file_size(archive_size)
+
         part_num = 0
         with open(self.archive_path, "rb") as in_file:
-            while True:
-                # Read archive file in chunks
-                chunk = in_file.read(self.split_size)
-                if not chunk:
-                    # No more file to read
-                    break
-
+            eof = False
+            while not eof:
                 # Get split file name
                 split_file = "%s.%04d" % (self.archive_path, part_num)
 
-                # Write chunk to split file
+                # Read/write chunks to split file
                 sha256 = hashlib.sha256()
+                bytes_read = 0
+                read_size = chunk_size
+
                 with open(split_file, "wb") as out_file:
-                    out_file.write(chunk)
-                    sha256.update(chunk)
+                    while bytes_read < package_file_size:
+                        if package_file_size - bytes_read < read_size:
+                            read_size = package_file_size - bytes_read
+                        chunk = in_file.read(read_size)
+                        if not chunk:
+                            # No more file to read
+                            eof = True
+                            break
+                        bytes_read += len(chunk)
+                        out_file.write(chunk)
+                        sha256.update(chunk)
+
+                if eof and bytes_read == 0:
+                    # Files split evenly, so this one is empty
+                    # Remove file that was created when it was opened
+                    os.remove(split_file)
+                    return
 
                 # Yield split file
                 yield {
@@ -86,8 +112,8 @@ class TorrentPackage(object):
                 # Increment part number for split file name
                 part_num += 1
 
-                # Verify number of files does not get out of control
-                if part_num > 10000:
+                # Verify number of files does not exceed our limits
+                if part_num > self.max_package_files:
                     raise RuntimeError('Exceeded split file count')
 
     def remove_archive(self):
@@ -95,9 +121,6 @@ class TorrentPackage(object):
             os.remove(self.archive_path)
         except OSError:
             pass
-
-    def get_split_files(self):
-        return self.split_files
 
     def create_package(self):
         self.set_permissions()

@@ -15,7 +15,8 @@ class CompletedTorrentPackager(DaSDRemoteWorker):
         # Parse config
         self._completed_torrents_dir = settings.DASDREMOTE['COMPLETED_TORRENTS_DIR']
         self._packaged_torrents_dir = settings.DASDREMOTE['PACKAGED_TORRENTS_DIR']
-        self._split_bytes = settings.DASDREMOTE['TORRENT_PACKAGE_SPLIT_BYTES']
+        self._min_package_file_size = settings.DASDREMOTE['TORRENT_PACKAGE_MIN_PACKAGE_FILE_BYTES']
+        self._max_package_files = settings.DASDREMOTE['TORRENT_PACKAGE_MAX_PACKAGE_FILES']
         self._sleep = 0
 
     def do_work(self):
@@ -26,7 +27,10 @@ class CompletedTorrentPackager(DaSDRemoteWorker):
         try:
             # Package torrent and save package files
             torrent_path = os.path.join(self._completed_torrents_dir, torrent.name)
-            tp = TorrentPackage(torrent_path, self._packaged_torrents_dir, self._split_bytes)
+            tp = TorrentPackage(
+                torrent_path, self._packaged_torrents_dir,
+                self._min_package_file_size, self._max_package_files
+            )
             package_files_count = 0
             for package_file in tp.create_package():
                 PackageFile.objects.create(torrent=torrent, **package_file)
