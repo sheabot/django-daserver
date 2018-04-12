@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
+import django.db.utils
 
 import dasdremote.utils as utils
 
@@ -28,8 +29,11 @@ class Command(BaseCommand):
 
     def _environment_init(self, username, password):
         # Create test user
-        user = User.objects.create_user(username, password=password)
-        user.save()
+        try:
+            user = User.objects.create_user(username, password=password)
+            user.save()
+        except django.db.utils.IntegrityError:
+            print "User '%s' already exists. Skipping..." % username
 
         # Create directories
         utils.fs.mkdir_p(settings.DASDREMOTE['TEMP_DIR'])

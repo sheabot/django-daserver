@@ -32,6 +32,8 @@ LOGGING = {
     },
 }
 
+DATABASES = SECRETS.get('databases', DATABASES)
+
 #
 # SECURITY SETTINGS
 #
