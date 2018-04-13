@@ -43,7 +43,7 @@ class DaSDRemoteToken(models.Model):
 
 
 class Torrent(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     created = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now_add=True)
     package_files_count = models.IntegerField(default=0)
@@ -66,7 +66,7 @@ class Torrent(models.Model):
 
 
 class PackageFile(models.Model):
-    filename = models.CharField(max_length=255)
+    filename = models.CharField(max_length=255, unique=True)
     filesize = models.IntegerField(default=0)
     sha256 = models.CharField(max_length=255)
     torrent = models.ForeignKey(Torrent, related_name='package_file_set')

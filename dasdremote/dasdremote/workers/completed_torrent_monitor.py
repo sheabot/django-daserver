@@ -25,11 +25,23 @@ class CompletedTorrentMonitor(DaSDRemoteWorker):
         and add them to queue if they need to be packaged.
         Start watching completed torrents directory.
         """
+        completed_torrents = set()
         for torrent in Torrent.objects.all():
             self.log.info('Found: %s', torrent.name)
+            completed_torrents.add(torrent.name)
             if not torrent.is_packaged():
                 self.torrent_queue.put(torrent)
                 self.log.info('Added: %s', torrent.name)
+
+        for filename in os.listdir(self._completed_torrents_dir):
+            if not filename in completed_torrents:
+                self.log.info('Found: %s', filename)
+                try:
+                    torrent = Torrent.objects.create(name=filename)
+                    self.torrent_queue.put(torrent)
+                    self.log.info('Added: %s', torrent.name)
+                except:
+                    self.log.error('Failed to create torrent: %s', torrent.name)
 
         self.log.info('Watching directory: %s', self._completed_torrents_dir)
         self._watch = self._inotify.add_watch(
@@ -40,6 +52,10 @@ class CompletedTorrentMonitor(DaSDRemoteWorker):
     def do_work(self):
         for event in self._inotify.read():
             filename = event.name
+            if not filename:
+                self.log.debug('Empty filename. Ignoring.')
+                continue
+
             try:
                 torrent = Torrent.objects.create(name=filename)
                 self.torrent_queue.put(torrent)
