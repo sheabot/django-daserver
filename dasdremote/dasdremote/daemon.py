@@ -2,6 +2,7 @@
 import logging
 import os
 from Queue import Queue
+import signal
 import time
 import threading
 
@@ -46,7 +47,7 @@ class DaServerDaemonRemote(object):
         while not self._stop_signal.is_set():
             self._log.debug('Daemon Running')
             try:
-                time.sleep(60)
+                signal.pause()
             except KeyboardInterrupt:
                 self.stop()
 

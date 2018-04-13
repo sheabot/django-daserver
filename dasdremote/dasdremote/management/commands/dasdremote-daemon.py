@@ -14,10 +14,6 @@ class Command(BaseDaemonCommand):
 
     help = 'Runs DaServer Daemon Remote'
 
-    def __init__(self):
-        super(Command, self).__init__()
-        self._daemon = None
-
     def loop_callback(self):
         self._daemon = DaServerDaemonRemote()
         self._daemon.start()
