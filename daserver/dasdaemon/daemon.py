@@ -1,5 +1,6 @@
 """Da Server Daemon"""
 import os
+import signal
 import time
 import threading
 
@@ -58,9 +59,9 @@ class DaServerDaemon(object):
             self.stop()
 
         while not self._stop_signal.is_set():
-            log.debug('Running')
+            log.info('Running')
             try:
-                time.sleep(5)
+                signal.pause()
             except KeyboardInterrupt:
                 self.stop()
 
