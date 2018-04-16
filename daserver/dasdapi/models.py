@@ -78,8 +78,8 @@ class PackageFile(models.Model):
 
 class TorrentError(models.Model):
     torrent = models.ForeignKey(Torrent, related_name='errors')
-    type = models.IntegerField()
-    message = models.CharField(max_length=255)
+    type = models.BigIntegerField()
+    message = models.CharField(max_length=1024)
     time = models.DateTimeField()
     stage = models.CharField(max_length=255)
     count = models.IntegerField(default=0)
@@ -100,8 +100,8 @@ class TorrentError(models.Model):
 
 class PackageFileError(models.Model):
     package_file = models.ForeignKey(PackageFile, related_name='errors')
-    type = models.IntegerField()
-    message = models.CharField(max_length=255)
+    type = models.BigIntegerField()
+    message = models.CharField(max_length=1024)
     time = models.DateTimeField()
     stage = models.CharField(max_length=255)
     count = models.IntegerField(default=0)
