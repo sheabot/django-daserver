@@ -43,6 +43,21 @@ class PathManager(object):
         """
         return os.path.join(self.get_package_files_dir(torrent), package_file.filename)
 
+    def chownmod_package_file(self, torrent, package_file):
+        """Change ownership and mode of package file
+        /package/files/dir/<torrent>/<torrent>.tar.0001
+        """
+        try:
+            utils.fs.chownmod(
+                self.get_package_file_path(torrent, package_file),
+                uid=self.package_files_dir.uid,
+                gid=self.package_files_dir.gid,
+                dmode=self.package_files_dir.dmode,
+                fmode=self.package_files_dir.fmode
+            )
+        except OSError as exc:
+            raise PathError(str(exc))
+
     def get_package_archive_path(self, torrent):
         """Get path to package archive
         /package/files/dir/<torrent>/<torrent>.tar

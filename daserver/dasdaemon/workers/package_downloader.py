@@ -128,6 +128,7 @@ class PackageDownloader(DaSDWorker):
                     req,
                     self.path_manager.get_package_file_path(torrent, package_file)
                 )
+                self.path_manager.chownmod_package_file(torrent, package_file)
             except Exception as exc:
                 message = 'Failed to download package file: %s: %s' % (package_file.filename, exc)
                 raise PackageDownloadError(message)
@@ -135,7 +136,6 @@ class PackageDownloader(DaSDWorker):
                 log.info('Downloaded: %s', package_file.filename)
 
         # Verify package file
-        log.info('Verifying: %s', package_file.filename)
         if not self._verify_package_file(torrent, package_file):
             # Remove package file
             utils.fs.rm_rf(self.path_manager.get_package_file_path(torrent, package_file))
