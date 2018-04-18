@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from dasdremote.authentication import DaSDRemoteTokenAuthentication
+from dasdremote.models import Torrent, PackageFile
 from dasdremote.permissions import IsAuthenticatedTest
 from dasdremote.serializers import (
     TestCreateTorrentSerializer,
@@ -104,8 +105,9 @@ class DaSDRemoteTestCompletedTorrentsView(DaSDRemoteTestView):
         # Get config
         completed_torrents_dir = settings.DASDREMOTE['COMPLETED_TORRENTS_DIR']
 
-        # Delete directory contents
+        # Delete directory contents and database objects
         if delete_all:
+            Torrent.objects.all().delete()
             utils.fs.rm_dir_contents(completed_torrents_dir)
             return Response('Cleared completed torrents directory')
 
@@ -172,8 +174,9 @@ class DaSDRemoteTestPackagedTorrentsView(DaSDRemoteTestView):
         # Get config
         packaged_torrents_dir = settings.DASDREMOTE['PACKAGED_TORRENTS_DIR']
 
-        # Delete directory contents
+        # Delete directory contents and database objects
         if delete_all:
+            Torrent.objects.all().delete()
             utils.fs.rm_dir_contents(packaged_torrents_dir)
             return Response('Cleared packaged torrents directory')
 
