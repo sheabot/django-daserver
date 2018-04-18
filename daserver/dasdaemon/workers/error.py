@@ -9,7 +9,7 @@ class ErrorHandlerPeriodicQueryFunction(DaSDPeriodicQueryFunction):
 
     def do_query(self):
         self._handle_torrents()
-        #self._handle_package_files()
+        self._handle_package_files()
 
     def _handle_torrents(self):
         # Get all Torrents in error stage
