@@ -1,6 +1,8 @@
 import threading
 import time
 
+from django.conf import settings
+
 from dasdaemon.logger import log
 
 
@@ -18,7 +20,7 @@ class DatabaseManager(threading.Thread):
 
     def run(self):
         """Execute query functions until stopped"""
-        log.info('Started')
+        log.info('Started with database engine: %s', settings.DATABASES['default']['ENGINE'])
         while not self.stop_signal.is_set():
             self._execute_query_functions()
             # TODO: Make this configurable
