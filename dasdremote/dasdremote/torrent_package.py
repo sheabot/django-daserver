@@ -32,7 +32,7 @@ class TorrentPackage(object):
         self.max_package_files = max_package_files
 
         # Absolute path to archive file
-        self.archive_path = os.path.join(self.output_dir, "%s.tar" % self.source_name)
+        self.archive_path = os.path.join(self.output_dir, "%s.tgz" % self.source_name)
 
     def get_package_file_size(self, total_archive_size):
         if total_archive_size / self.min_package_file_size > self.max_package_files:
@@ -56,7 +56,7 @@ class TorrentPackage(object):
 
     def archive_source(self):
         # Create archive file
-        with tarfile.open(self.archive_path, "w") as tf:
+        with tarfile.open(self.archive_path, "w:gz") as tf:
             # Add source file or directory to archive with relative paths
             tf.add(self.source_path, arcname=self.source_name)
 
