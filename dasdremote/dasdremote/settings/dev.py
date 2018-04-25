@@ -7,11 +7,19 @@ DEBUG = True
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'default': {
+            'format': '%(asctime)s [%(levelname)5s] [%(threadName)s] %(message)s'
+        },
+    },
     'handlers': {
         'file': {
             'level': 'DEBUG',
-            'class': 'logging.FileHandler',
+            'class': 'logging.handlers.RotatingFileHandler',
             'filename': SECRETS['log_file'],
+            'formatter': 'default',
+            'maxBytes': 5242880,
+            'backupCount': 5
         },
         'console': {
             'level': 'DEBUG',

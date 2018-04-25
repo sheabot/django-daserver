@@ -35,9 +35,21 @@ class DaServerDaemonRemote(object):
 
         # Start workers
         try:
-            self._workers.append(CompletedTorrentMonitor(log=self._log, torrent_queue=self._queue))
-            for _ in xrange(self._complete_torrent_packager_num_threads):
-                self._workers.append(CompletedTorrentPackager(log=self._log, torrent_queue=self._queue))
+            self._workers.append(
+                CompletedTorrentMonitor(
+                    name='CompletedTorrentMonitor',
+                    log=self._log,
+                    torrent_queue=self._queue
+                )
+            )
+            for i in xrange(self._complete_torrent_packager_num_threads):
+                self._workers.append(
+                    CompletedTorrentPackager(
+                        name='CompletedTorrentPackager-%d' % i,
+                        log=self._log,
+                        torrent_queue=self._queue
+                    )
+                )
             for worker in self._workers:
                 worker.start()
         except:
@@ -64,3 +76,6 @@ class DaServerDaemonRemote(object):
             self._queue.put(None)
         for worker in self._workers:
             worker.join()
+
+    def _configure_logging(self):
+        self._log = logging.getLogger('DaServerDaemonRemote')
