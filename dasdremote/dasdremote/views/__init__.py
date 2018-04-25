@@ -4,3 +4,4 @@ from .test import *
 from .torrents import DaSDRemoteTorrentViews
 
 from .index import *
+from .debug import *

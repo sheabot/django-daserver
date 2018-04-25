@@ -22,4 +22,7 @@ if settings.DEBUG:
         url(r'^test/packaged-torrents/$', views.test.packaged_torrents_view),
 
         url(r'^index/', views.index.index_view),
+
+        url(r'^debug/$', views.debug.IndexView.as_view()),
+        url(r'^debug/(?P<name>[^/]+)/$', views.debug.DetailView.as_view(), name='torrent')
     ]

@@ -1,0 +1,6 @@
+<h1>Torrents ({{ torrents.count }}): </h1>
+<ul>
+    {% for torrent in torrents %}
+        <li><a href="{% url 'torrent' torrent.name %}">{{ torrent.name }}</a></li>
+    {% endfor %}
+</ul>

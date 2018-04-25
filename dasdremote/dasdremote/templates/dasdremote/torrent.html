@@ -1,0 +1,12 @@
+<h1>{{ torrent.name }}</h1>
+
+<table>
+    <thead>
+        <tr><td>Package Filename</td><td>Filesize</td><td>SHA256</td></tr>
+    </thead>
+    <tbody>
+    {% for package_file in torrent.package_file_set.all %}
+        <tr><td>{{ package_file.filename }}</td><td>{{ package_file.filesize }}</td><td>{{ package_file.sha256 }}</td></li>
+    {% endfor %}
+    </tbody>
+</table>
